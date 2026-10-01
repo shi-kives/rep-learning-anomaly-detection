@@ -1,8 +1,10 @@
-import torch
-from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+import os
+import numpy as np
+from PIL import Image
+from torchvision import transforms
+from torch.utils.data import DataLoader, Dataset
 
-data_transform = transforms.Compose([
+transform = transforms.Compose([
     transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize(
@@ -11,19 +13,36 @@ data_transform = transforms.Compose([
     )
 ])
 
-paths = []
+class ImageDataset(Dataset):
+    def __init__(self, dir, transform = transform):
+        self.dir = dir
+        self.images = os.listdir(dir)
+        self.transform = transform
 
-train_dataset = datasets.ImageFolder(root='datasets/MVTecAD/wood/train', transform = data_transform)
+    def __len__(self):
+        return len(self.images)
 
-train_loader = DataLoader(
-    dataset = train_dataset,
+    def __getitem__(self, idx):
+        image_path = os.path.join(self.dir, self.images[idx])
+        image = np.array(Image.open(image_path))
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image
+
+path = 'datasets/MVTecAD/wood/train/good'
+
+dataset = ImageDataset(path)
+dataset_length = len(dataset)
+
+print("number of training examples: ", dataset_length)
+
+data_loader = DataLoader(
+    dataset = dataset,
     batch_size = 32,
     shuffle = True
 )
 
-iter = 1
-for images, labels in train_loader:
-    print(f"loading batch {iter}")
-    iter += 1
-
-print("-- data loaded successfully --")
+print("number of batches: ", len(data_loader))
+print("data loaded successfully.")
