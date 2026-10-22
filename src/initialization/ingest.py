@@ -33,16 +33,17 @@ class ImageDataset(Dataset):
 
 path = 'datasets/MVTecAD/wood/train/good'
 
-dataset = ImageDataset(path)
-dataset_length = len(dataset)
+if __name__ == '__main__':
+    wood_dataset = ImageDataset(path)
+    dataset_length = len(wood_dataset)
 
-print("number of training examples: ", dataset_length)
+    print("number of training examples: ", dataset_length)
 
-data_loader = DataLoader(
-    dataset = dataset,
-    batch_size = 32,
-    shuffle = True
-)
+    data_loader = DataLoader(
+        dataset = wood_dataset,
+        batch_size = 32,
+        shuffle = True
+    )
 
-print("number of batches: ", len(data_loader))
-print("data loaded successfully.")
+    print("number of batches: ", len(data_loader))
+    print("data loaded successfully.")
