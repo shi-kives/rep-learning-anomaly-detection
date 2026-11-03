@@ -28,7 +28,7 @@ def create_manifest(dir_path: Path, save_path: Path, mode: str):
             }
 
     if mode == 'test_public':
-        all_file_paths, all_labels, all_domains = [], [], []
+        all_file_paths, all_labels, all_domains, all_ground_truths = [], [], [], []
 
         for subfolder in ['good', 'bad']:
             subfolder_path = dir_path / subfolder
@@ -53,6 +53,21 @@ def create_manifest(dir_path: Path, save_path: Path, mode: str):
                 'Shift_3': [f"{base}/{count:03d}_shift_3.png" for count in range(total_sets)]
             }
 
+            if subfolder == 'bad':
+                base = f"datasets/MVTecAD2/{CATEGORY}/{mode}/ground_truth/bad"
+                ground_mapping = {
+                    'Regular': [f"{base}/{count:03d}_regular_mask.png" for count in range(total_sets)],
+                    'Overexposed': [f"{base}/{count:03d}_overexposed_mask.png" for count in range(total_sets)],
+                    'Underexposed': [f"{base}/{count:03d}_underexposed_mask.png" for count in range(total_sets)],
+                    'Shift_1': [f"{base}/{count:03d}_shift_1_mask.png" for count in range(total_sets)],
+                    'Shift_2': [f"{base}/{count:03d}_shift_2_mask.png" for count in range(total_sets)],
+                    'Shift_3': [f"{base}/{count:03d}_shift_3_mask.png" for count in range(total_sets)]
+                }
+                for file in ground_mapping.values():
+                    all_ground_truths.extend(file)
+
+            else:
+                all_ground_truths.extend(["NA"] * total_files)
 
             for domain, file in domain_mapping.items():
                 all_file_paths.extend(file)
@@ -63,7 +78,8 @@ def create_manifest(dir_path: Path, save_path: Path, mode: str):
             'Image_ID': list(range(len(all_file_paths))),
             'Path_to_PNG': all_file_paths,
             'Label': all_labels,
-            'Domain': all_domains
+            'Domain': all_domains,
+            'Ground_Truth_Path': all_ground_truths
         }
 
     save_path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,5 +93,3 @@ if __name__ == '__main__':
         dir = BASE_PATH / i / "good" if i == 'train' or i == 'validation' else BASE_PATH / i
         save = ROOT / "results" / "artifacts" / f"{i}_manifest.csv"
         create_manifest(dir, save, i)
-
-    
